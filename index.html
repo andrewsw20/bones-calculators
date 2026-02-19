@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rolling Bones Sausage Calculator</title>
+  <style>
+    /* =========================
+       BRAND FONTS
+    ========================= */
+    @font-face {
+      font-family: "TAYBirdie";
+      src: url("./fonts/TAYBirdie.woff2") format("woff2"),
+           url("./fonts/TAYBirdie.otf") format("opentype");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "RBBBody";
+      src: url("./fonts/RBBBody.woff2") format("woff2"),
+           url("./fonts/RBBBody.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* =========================
+       BRAND TOKENS
+    ========================= */
+    :root{
+      --max: 920px;
+
+      --font-head: "TAYBirdie", system-ui, sans-serif;
+      --font-body: "RBBBody", system-ui, sans-serif;
+
+      --color-primary: #343735;
+      --color-bg: #FFFFFA;
+      --color-surface: #FFFFFF;
+      --color-text: #343735;
+      --color-muted: rgba(52, 55, 53, 0.72);
+      --color-border: rgba(52, 55, 53, 0.14);
+
+      --color-accent: #D5BD7F;
+      --color-on-primary: #FFFFFA;
+
+      --shadow: 0 2px 14px rgba(0,0,0,.05);
+      --radius: 16px;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      font-family: var(--font-body);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.45;
+    }
+
+    header{
+      background: var(--color-primary);
+      color: var(--color-on-primary);
+      padding: 30px 18px 24px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .wrap{ max-width: var(--max); margin: 0 auto; }
+
+    h1{
+      font-family: var(--font-head);
+      letter-spacing: .6px;
+      margin: 0 0 6px;
+      font-size: 30px;
+    }
+
+    header p{ margin: 0; opacity: .9; }
+
+    main{ padding: 18px 18px 54px; }
+
+    .card{
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin: 14px 0;
+    }
+
+    .step{
+      font-family: var(--font-head);
+      letter-spacing: .5px;
+      font-size: 18px;
+      margin: 0 0 12px;
+    }
+
+    .row{ display:flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+    .row.space{ justify-content: space-between; align-items: center; }
+
+    label{ display:block; font-size: 13px; opacity: .8; margin-bottom: 6px; }
+
+    input[type="number"], select{
+      font-family: var(--font-body);
+      font-size: 16px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+      background: #fff;
+      color: var(--color-text);
+      outline: none;
+    }
+
+    input[type="number"]{ width: 220px; }
+    select{ min-width: 190px; }
+
+    input[type="number"]:focus, select:focus{
+      border-color: rgba(213,189,127,.9);
+      box-shadow: 0 0 0 4px rgba(213,189,127,.18);
+    }
+
+    .hint{ font-size: 13px; color: var(--color-muted); margin-top: 8px; }
+
+    .pill{
+      display:inline-block;
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(213,189,127, 0.18);
+      color: var(--color-text);
+      border: 1px solid rgba(213,189,127, 0.28);
+    }
+
+    .muted{ color: var(--color-muted); }
+
+    .divider{
+      height: 1px;
+      background: var(--color-border);
+      margin: 14px 0;
+    }
+
+    table{ width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td{ text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(52,55,53,.10); vertical-align: top; }
+    th{
+      font-family: var(--font-head);
+      letter-spacing: .45px;
+      font-size: 13px;
+      opacity: .85;
+    }
+
+    .groupTitle{
+      font-family: var(--font-head);
+      letter-spacing: .45px;
+      font-size: 14px;
+      margin-top: 14px;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .groupTitle::after{
+      content:"";
+      height: 1px;
+      flex: 1;
+      background: var(--color-border);
+      margin-top: 2px;
+    }
+
+    button{
+      font-family: var(--font-body);
+      font-size: 14px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+      background: #fff;
+      cursor: pointer;
+      color: var(--color-text);
+    }
+    button:hover{ filter: brightness(0.99); }
+    button.primary{
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--color-on-primary);
+    }
+    button.primary:hover{ filter: brightness(1.05); }
+    button.ghost{
+      background: transparent;
+    }
+
+    .actions{ display:flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      background: #0b0b0b;
+      color: #f5f5f5;
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .toggleRow{ display:flex; gap: 10px; flex-wrap: wrap; align-items:center; }
+    .toggle{
+      display:flex; align-items:center; gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--color-border);
+      background: #fff;
+      cursor: pointer;
+      user-select: none;
+      font-size: 13px;
+    }
+    .toggle input{ margin: 0; }
+    .badge{
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(52,55,53,.18);
+      background: rgba(52,55,53,.04);
+    }
+
+    footer{
+      padding: 20px 18px 30px;
+      color: var(--color-muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    footer a{ color: var(--color-accent); text-decoration: none; border-bottom: 1px solid rgba(213,189,127,.6); }
+    footer a:hover{ border-bottom-color: rgba(213,189,127,1); }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Sausage Calculator</h1>
+      <p>Input meat weight. Get a scaled recipe. Built for repeatable, ratio-based sausage.</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+
+      <section class="card">
+        <p class="step">1. Meat + Batch Settings</p>
+
+        <div class="row">
+          <div>
+            <label for="meatAmount">Meat amount</label>
+            <input id="meatAmount" type="number" min="0" step="0.01" placeholder="e.g., 5" />
+          </div>
+
+          <div>
+            <label for="meatUnit">Meat unit</label>
+            <select id="meatUnit">
+              <option value="lb">Pounds (lb)</option>
+              <option value="g">Grams (g)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="batchType">Batch type</label>
+            <select id="batchType">
+              <option value="fresh">Fresh sausage</option>
+              <option value="cured">Cured sausage</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="displayUnit">Display ingredient amounts in</label>
+            <select id="displayUnit">
+              <option value="g">Grams (g)</option>
+              <option value="oz">Ounces (oz)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="toggleRow">
+          <label class="toggle" title="Show optional ingredients like binders and cure">
+            <input id="showOptional" type="checkbox" checked />
+            Show optional ingredients
+          </label>
+
+          <label class="toggle" title="Show advanced notes and warnings">
+            <input id="showNotes" type="checkbox" checked />
+            Show notes
+          </label>
+
+          <span class="badge" id="precisionBadge">Precision: grams recommended</span>
+        </div>
+
+        <p class="hint">
+          Best practice: weigh everything in grams for consistency.
+          <span id="cureHint" style="display:none;">Cure is for cured sausage only—verify your recipe and usage before producing.</span>
+        </p>
+      </section>
+
+      <section class="card">
+        <p class="step">2. Your Custom Recipe</p>
+
+        <div id="outputEmpty" class="muted">Enter an amount of meat above to see your recipe.</div>
+
+        <div id="output" style="display:none;">
+          <div class="row space">
+            <div>
+              <div class="pill" id="meatSummary"></div>
+              <div class="hint muted" id="meatSummarySub"></div>
+            </div>
+
+            <div class="row" style="gap:10px;">
+              <select id="copyMode" aria-label="Copy mode">
+                <option value="grams">Copy (grams only)</option>
+                <option value="display">Copy (match display units)</option>
+              </select>
+              <button class="primary" id="copyBtn" type="button">Copy recipe</button>
+            </div>
+          </div>
+
+          <div id="recipeContainer"></div>
+
+          <div class="actions">
+            <button id="resetBtn" type="button">Reset</button>
+          </div>
+
+          <div id="copyBlock" class="mono" style="display:none; margin-top: 12px;"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <p class="step">Instructions (simple + repeatable)</p>
+        <ol>
+          <li>Chill cubed meat 30–60 min before grinding (better texture).</li>
+          <li>Measure ingredients while the meat chills. Keep everything cold.</li>
+          <li>Grind (coarse plate first; optional second pass).</li>
+          <li>Mix until tacky and sticky (protein extraction) — don’t rush this.</li>
+          <li>Stuff, link, and rest overnight if you want flavor to develop.</li>
+        </ol>
+        <p class="hint">If you want this to mirror your exact “brisket trim” sausage ratios, edit the ingredient list in the code.</p>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    Built for Rolling Bones-style process cooking.
+    <span class="muted">Want this embedded in Shopify? Drop it into a page template or host as a static page.</span>
+  </footer>
+
+<script>
+  // =========================
+  // EDIT YOUR RECIPE HERE
+  // =========================
+  // Rules:
+  // - type "percent" => percent of meat weight (by mass)
+  // - type "g_per_lb" => grams per pound of meat
+  //
+  // Fields:
+  // - group: "Salt & Cure" | "Liquids" | "Spices" | "Binder" | etc
+  // - appliesTo: "fresh" | "cured" | "both"
+  // - optional: true/false
+  // - note: optional string shown when "Show notes" is enabled
+  const INGREDIENTS = [
+    // Salt & Cure
+    { name: "Kosher salt", group: "Salt & Cure", type: "percent", value: 1.8, appliesTo: "both", optional: false, note: "Good all-around starting point for fresh sausage." },
+    { name: "Cure #1 (pink salt)", group: "Salt & Cure", type: "percent", value: 0.25, appliesTo: "cured", optional: true, note: "ONLY for cured sausage. Verify your exact cure requirements." },
+
+    // Liquids
+    { name: "Ice water", group: "Liquids", type: "percent", value: 10.0, appliesTo: "both", optional: false, note: "Helps protein extraction and mix consistency." },
+
+    // Binder (optional)
+    { name: "Non-fat dry milk (binder)", group: "Binder", type: "percent", value: 2.0, appliesTo: "both", optional: true, note: "Optional. Helps bind and retain moisture." },
+
+    // Spices (examples)
+    { name: "Black pepper", group: "Spices", type: "percent", value: 0.25, appliesTo: "both", optional: false, note: "" },
+    { name: "Garlic powder", group: "Spices", type: "percent", value: 0.20, appliesTo: "both", optional: false, note: "" },
+
+    // Example per-lb spice:
+    // { name: "Crushed red pepper", group: "Spices", type: "g_per_lb", value: 1.5, appliesTo: "both", optional: true, note: "Example per-lb style ingredient." },
+  ];
+
+  // =========================
+  // CONVERSIONS
+  // =========================
+  const LB_TO_G = 453.59237;
+  const G_TO_OZ = 1 / 28.349523125;
+
+  function meatToGrams(meatAmount, unit) {
+    if (!meatAmount || meatAmount <= 0) return 0;
+    return unit === "lb" ? meatAmount * LB_TO_G : meatAmount;
+  }
+
+  function gramsToDisplay(grams, displayUnit) {
+    if (displayUnit === "oz") return { value: grams * G_TO_OZ, unit: "oz" };
+    return { value: grams, unit: "g" };
+  }
+
+  function formatNumber(n) {
+    if (!isFinite(n)) return "—";
+    const abs = Math.abs(n);
+    if (abs >= 100) return n.toFixed(0);
+    if (abs >= 10) return n.toFixed(1);
+    return n.toFixed(2);
+  }
+
+  function ratioLabel(ing) {
+    if (ing.type === "percent") return `${ing.value}%`;
+    if (ing.type === "g_per_lb") return `${ing.value} g/lb`;
+    return "—";
+  }
+
+  function ingredientGrams(ing, meatGrams, meatLb) {
+    if (ing.type === "percent") return meatGrams * (ing.value / 100);
+    if (ing.type === "g_per_lb") return meatLb * ing.value;
+    return 0;
+  }
+
+  // =========================
+  // UI
+  // =========================
+  const meatAmountEl = document.getElementById("meatAmount");
+  const meatUnitEl = document.getElementById("meatUnit");
+  const batchTypeEl = document.getElementById("batchType");
+  const displayUnitEl = document.getElementById("displayUnit");
+  const showOptionalEl = document.getElementById("showOptional");
+  const showNotesEl = document.getElementById("showNotes");
+  const cureHintEl = document.getElementById("cureHint");
+
+  const outputEmptyEl = document.getElementById("outputEmpty");
+  const outputEl = document.getElementById("output");
+  const meatSummaryEl = document.getElementById("meatSummary");
+  const meatSummarySubEl = document.getElementById("meatSummarySub");
+  const recipeContainerEl = document.getElementById("recipeContainer");
+
+  const copyModeEl = document.getElementById("copyMode");
+  const copyBtnEl = document.getElementById("copyBtn");
+  const resetBtnEl = document.getElementById("resetBtn");
+  const copyBlockEl = document.getElementById("copyBlock");
+
+  function buildGrouped(ingredients) {
+    const groups = {};
+    ingredients.forEach(ing => {
+      const g = ing.group || "Ingredients";
+      groups[g] = groups[g] || [];
+      groups[g].push(ing);
+    });
+    return groups;
+  }
+
+  function shouldInclude(ing, batchType, showOptional) {
+    const applies = ing.appliesTo || "both";
+    if (!(applies === "both" || applies === batchType)) return false;
+    if (!showOptional && ing.optional) return false;
+    return true;
+  }
+
+  function render() {
+    const meatAmount = parseFloat(meatAmountEl.value);
+    const unit = meatUnitEl.value;
+    const batchType = batchTypeEl.value;
+    const displayUnit = displayUnitEl.value;
+
+    const showOptional = !!showOptionalEl.checked;
+    const showNotes = !!showNotesEl.checked;
+
+    const meatGrams = meatToGrams(meatAmount, unit);
+    const meatLb = meatGrams / LB_TO_G;
+
+    cureHintEl.style.display = (batchType === "cured") ? "inline" : "none";
+
+    if (!meatGrams) {
+      outputEmptyEl.style.display = "block";
+      outputEl.style.display = "none";
+      copyBlockEl.style.display = "none";
+      recipeContainerEl.innerHTML = "";
+      return;
+    }
+
+    outputEmptyEl.style.display = "none";
+    outputEl.style.display = "block";
+
+    meatSummaryEl.textContent = `Meat: ${formatNumber(meatAmount)} ${unit} • ${batchType === "fresh" ? "Fresh" : "Cured"}`;
+    meatSummarySubEl.textContent = `(${formatNumber(meatGrams)} g total)`;
+
+    const included = INGREDIENTS.filter(ing => shouldInclude(ing, batchType, showOptional));
+    const grouped = buildGrouped(included);
+
+    // Build grouped tables
+    recipeContainerEl.innerHTML = "";
+
+    const linesForCopy_grams = [];
+    const linesForCopy_display = [];
+
+    Object.entries(grouped).forEach(([groupName, items]) => {
+      const title = document.createElement("div");
+      title.className = "groupTitle";
+      title.textContent = groupName;
+      recipeContainerEl.appendChild(title);
+
+      const table = document.createElement("table");
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Ingredient</th>
+            <th>Ratio</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+      const tbody = table.querySelector("tbody");
+
+      items.forEach(ing => {
+        const grams = ingredientGrams(ing, meatGrams, meatLb);
+        const disp = gramsToDisplay(grams, displayUnit);
+
+        const tr = document.createElement("tr");
+
+        const tdName = document.createElement("td");
+        const note = (showNotes && ing.note) ? `<div class="hint">${ing.note}</div>` : "";
+        const opt = ing.optional ? `<span class="badge" style="margin-left:8px;">optional</span>` : "";
+        tdName.innerHTML = `<strong>${ing.name}</strong>${opt}${note}`;
+
+        const tdRatio = document.createElement("td");
+        tdRatio.textContent = ratioLabel(ing);
+
+        const tdAmt = document.createElement("td");
+        tdAmt.textContent = `${formatNumber(disp.value)} ${disp.unit}`;
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdRatio);
+        tr.appendChild(tdAmt);
+        tbody.appendChild(tr);
+
+        linesForCopy_grams.push(`${ing.name}: ${formatNumber(grams)} g (${ratioLabel(ing)})`);
+        linesForCopy_display.push(`${ing.name}: ${formatNumber(disp.value)} ${disp.unit} (${ratioLabel(ing)})`);
+      });
+
+      recipeContainerEl.appendChild(table);
+    });
+
+    const headerCopy =
+`Sausage Recipe (scaled)
+Meat: ${formatNumber(meatGrams)} g
+Batch: ${batchType === "fresh" ? "Fresh sausage" : "Cured sausage"}
+
+`;
+
+    const footerCopy =
+`
+
+Notes:
+- Weigh in grams for consistency.
+- If using cure, verify your specific recipe and safe usage.`;
+
+    copyBlockEl.textContent = headerCopy + linesForCopy_grams.join("\n") + footerCopy;
+
+    // Keep both versions ready
+    copyBlockEl.dataset.copyGrams = headerCopy + linesForCopy_grams.join("\n") + footerCopy;
+    copyBlockEl.dataset.copyDisplay = headerCopy + linesForCopy_display.join("\n") + footerCopy;
+  }
+
+  function currentCopyText() {
+    return (copyModeEl.value === "display") ? copyBlockEl.dataset.copyDisplay : copyBlockEl.dataset.copyGrams;
+  }
+
+  function showCopyBlock() {
+    copyBlockEl.style.display = "block";
+    copyBlockEl.textContent = currentCopyText();
+  }
+
+  meatAmountEl.addEventListener("input", render);
+  meatUnitEl.addEventListener("change", render);
+  batchTypeEl.addEventListener("change", render);
+  displayUnitEl.addEventListener("change", () => { render(); showCopyBlock(); });
+  showOptionalEl.addEventListener("change", () => { render(); showCopyBlock(); });
+  showNotesEl.addEventListener("change", () => { render(); showCopyBlock(); });
+  copyModeEl.addEventListener("change", showCopyBlock);
+
+  copyBtnEl.addEventListener("click", async () => {
+    showCopyBlock();
+    try {
+      await navigator.clipboard.writeText(currentCopyText());
+      copyBtnEl.textContent = "Copied!";
+      setTimeout(() => (copyBtnEl.textContent = "Copy recipe"), 1200);
+    } catch (e) {
+      copyBtnEl.textContent = "Select & copy below";
+      setTimeout(() => (copyBtnEl.textContent = "Copy recipe"), 1600);
+    }
+  });
+
+  resetBtnEl.addEventListener("click", () => {
+    meatAmountEl.value = "";
+    meatUnitEl.value = "lb";
+    batchTypeEl.value = "fresh";
+    displayUnitEl.value = "g";
+    showOptionalEl.checked = true;
+    showNotesEl.checked = true;
+    copyModeEl.value = "grams";
+    copyBlockEl.style.display = "none";
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>
